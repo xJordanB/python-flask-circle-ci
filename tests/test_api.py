@@ -33,7 +33,7 @@ class APITestCase(unittest.TestCase):
         response = self.client.get(
             '/wrong/url',
             headers=self.get_api_headers('email', 'password'))
-        self.assertTrue(response.status_code == 404)
+        self.assertTrue(response.status_code == 403)
         json_response = json.loads(response.data.decode('utf-8'))
         self.assertTrue(json_response['error'] == 'not found')
 
