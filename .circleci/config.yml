@@ -1,38 +1,33 @@
-version: 2 # version 2 of CircleCI config.yml syntax
-jobs: # we can have several jobs, but jobs define several 'steps'
-  build: # when not using CircleCI workflows, we need to include a 'build' statement
-    docker: # needs to be either machine or docker. We're using docker here.
+version: 2
+jobs:
+  build:
+    docker:
       - image: circleci/python:3.6.2-stretch-browsers
-        # Defines the docker image to use for the build.
-        # First image specified here is the 'primary container', which is where all code is executed.
-        # We can have multiple containers, but only one 'primary container'.
-        # Also need to include checjout as the first step within the steps section.
-        # Also needs to be follows by a 'run' command for the 'primary container'.
-        environment: # Environment vairbales for the 'primary container'
-          FLASK_CONFIG: testing # env1
-          TEST_DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable #env2
-        - image: circleci/postgres:9.6.5-alpine-ram # bring in a 'service container'. In this case, runs a DB
-          environment: # Define service container envs
-            POSTGRES_USER: root # db user
-            POSTGRES_DB: circle_test # db name
-            POSTGRES_PASSWORD: "" # db password
+        environment:
+          FLASK_CONFIG: testing
+          TEST_DATABASE_URL: postgresql://ubuntu@localhost/circle_test?sslmode=disable
+      - image: circleci/postgres:9.6.5-alpine-ram
+        environment:
+          POSTGRES_USER: ubuntu
+          POSTGRES_DB: circle_test
+          POSTGRES_PASSWORD: ""
     steps:
-      - checkout # checkout from version control
+      - checkout
       - run: mkdir test-reports
       - run:
-          - name: Download Selenium
+          name: Download Selenium
           command: |
             curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
       - run:
-          - name: Start Selenium
+          name: Start Selenium
           command: |
             java -jar selenium-server-standalone-3.5.3.jar -log test-reports/selenium.log
           background: true
-      - -restore_cache:
-          key: deps1-{{ .branch }}-{{ checksum "requirements/dev.txt" }}
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
       - run:
-          - name: Install Python deps in a venv # Name for the step within the job
-            command: | # pass in multi-line CLI commands to docker container
+          name: Install Python deps in a venv
+            command: |
               python3 -m venv venv
               . /venv/bin/activate
               pip install -r requirements/dev.txt
@@ -40,11 +35,11 @@ jobs: # we can have several jobs, but jobs define several 'steps'
           key: deps1-{{ .branch }}-{{ checksum "requirements/dev.txt" }}
           paths:
             - "venv"
-      - run: # Each run is in a seperate shell, meaning we need to re-activate the venv
+      - run:
           command: |
             . venv/bin/activate
             python manage.py test
-      - store_artifacts: # Path is relative to the project root, destination is a prefix chosen to be unique to avoid dup artifacts
+      - store_artifacts:
           path: test-reports/
           destination: tr1
       - store_tet_results:
