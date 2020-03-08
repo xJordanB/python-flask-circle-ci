@@ -2,20 +2,20 @@ version: 2 # version 2 of CircleCI config.yml syntax
 jobs: # we can have several jobs, but jobs define several 'steps'
   build: # when not using CircleCI workflows, we need to include a 'build' statement
     docker: # needs to be either machine or docker. We're using docker here.
-      - image: circleci/python3.6.2-stretch-browsers
-        # Defines the docker image to use for the build.
-        # First image specified here is the 'primary container', which is where all code is executed.
-        # We can have multiple containers, but only one 'primary container'.
-        # Also need to include checjout as the first step within the steps section.
-        # Also needs to be follows by a 'run' command for the 'primary container'.
-        environment: # Environment vairbales for the 'primary container'
-          FLASK_CONFIG: testing # env1
-          TEST_DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable #env2
-        - image: circleci/postgres9.6.5-alpine-ram # bring in a 'service container'. In this case, runs a DB
-          environment: # Define service container envs
-            POSTGRES_USER: root # db user
-            POSTGRES_DB: circle_test # db name
-            POSTGRES_PASSWORD: "" # db password
+       - image: circleci/python3.6.2-stretch-browsers
+         # Defines the docker image to use for the build.
+         # First image specified here is the 'primary container', which is where all code is executed.
+         # We can have multiple containers, but only one 'primary container'.
+         # Also need to include checjout as the first step within the steps section.
+         # Also needs to be follows by a 'run' command for the 'primary container'.
+         environment: # Environment vairbales for the 'primary container'
+           FLASK_CONFIG: testing # env1
+           TEST_DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable #env2
+         - image: circleci/postgres9.6.5-alpine-ram # bring in a 'service container'. In this case, runs a DB
+           environment: # Define service container envs
+             POSTGRES_USER: root # db user
+             POSTGRES_DB: circle_test # db name
+             POSTGRES_PASSWORD: "" # db password
     steps:
       - checkout # checkout from version control
       - run: mkdir test-reports
